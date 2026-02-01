@@ -3,201 +3,191 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Lot Calculator PRO - Doppio account (MT4)</title>
+
+  <!-- Anti-cache per PWA / GitHub Pages -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+
+  <title>Lot Calculator PRO – Doppio account (MT4) v2.1</title>
+
   <style>
     :root{
-      --bg:#07101f;
-      --card:#0b172b;
-      --card2:#0d1d35;
-      --text:#e9f0ff;
-      --muted:#9fb0d1;
-      --line:#1c2e52;
-      --blue:#1f66ff;
-      --green:#11c26d;
-      --red:#ff4d4d;
-      --amber:#ffcc66;
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
-      --radius: 18px;
+      --bg:#050a14;
+      --card:#0b1324;
+      --card2:#0a1020;
+      --text:#e7eefc;
+      --muted:#a9b7d0;
+      --line:rgba(255,255,255,.10);
+      --blue:#2d6bff;
+      --green:#19c37d;
+      --red:#ff4d4f;
+      --amber:#ffcc00;
+      --shadow: 0 16px 40px rgba(0,0,0,.35);
+      --radius:18px;
     }
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 700px at 20% 10%, #0e2452 0%, rgba(14,36,82,0) 60%),
-                  radial-gradient(900px 600px at 80% 20%, #103a2b 0%, rgba(16,58,43,0) 55%),
+      background: radial-gradient(900px 600px at 20% -10%, rgba(45,107,255,.25), transparent 60%),
+                  radial-gradient(900px 600px at 110% 20%, rgba(25,195,125,.18), transparent 55%),
                   var(--bg);
       color:var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      line-height:1.25;
+      padding:18px;
     }
-    .wrap{
-      max-width: 980px;
-      margin: 0 auto;
-      padding: 18px 14px 42px;
-    }
+    .wrap{max-width:760px;margin:0 auto}
     .title{
       text-align:center;
-      padding: 12px 10px 16px;
+      padding:10px 0 18px;
     }
-    .title h1{
-      margin: 8px 0 6px;
-      font-size: 28px;
+    h1{
+      margin:0;
+      font-size:32px;
       letter-spacing:.2px;
-      line-height: 1.15;
+      line-height:1.15;
     }
-    .title .sub{
+    .sub{
+      margin-top:8px;
       color:var(--muted);
-      font-size: 14px;
-      line-height:1.4;
+      font-size:14px;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:16px;
+      margin:12px 0;
+      overflow:hidden;
+    }
+    .card h2{
+      margin:0 0 12px 0;
+      font-size:18px;
+      color:var(--text);
     }
     .row{
       display:grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
     }
-    @media (min-width: 880px){
-      .row{
-        grid-template-columns: 1.15fr .85fr;
-        align-items: start;
-      }
-    }
-    .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
-      border: 1px solid rgba(255,255,255,.06);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 14px;
-      backdrop-filter: blur(8px);
-    }
-    .card h2{
-      margin: 4px 0 12px;
-      font-size: 18px;
-      color: #dce6ff;
-    }
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 12px;
-    }
-    @media (min-width: 560px){
-      .grid.two{ grid-template-columns: 1fr 1fr; }
-      .grid.three{ grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width:520px){
+      .row{grid-template-columns:1fr}
+      h1{font-size:28px}
     }
     label{
       display:block;
-      font-size: 12px;
-      color: var(--muted);
-      margin: 0 0 6px;
+      font-size:12px;
+      color:var(--muted);
+      margin:0 0 6px;
     }
     select,input{
       width:100%;
-      padding: 12px 12px;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(7,16,31,.55);
-      color: var(--text);
-      outline: none;
-      font-size: 16px;
-    }
-    input::placeholder{ color: rgba(159,176,209,.55); }
-    .hint{
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.35;
-    }
-    .btn{
-      width:100%;
-      border:0;
-      border-radius: 16px;
-      padding: 14px 14px;
-      font-weight: 700;
-      font-size: 16px;
-      background: linear-gradient(180deg, rgba(31,102,255,1), rgba(31,102,255,.75));
-      color: white;
-      box-shadow: 0 10px 25px rgba(31,102,255,.22);
-      cursor: pointer;
-    }
-    .btn:active{ transform: translateY(1px); }
-    .mini-btn{
-      width:100%;
+      height:48px;
+      border-radius:14px;
       border:1px solid rgba(255,255,255,.10);
-      border-radius: 16px;
-      padding: 12px 12px;
-      background: rgba(7,16,31,.45);
-      color: var(--text);
-      font-weight: 650;
-      cursor:pointer;
+      background:rgba(6,10,20,.55);
+      color:var(--text);
+      padding:0 14px;
+      font-size:16px;
+      outline:none;
+    }
+    input:focus, select:focus{
+      border-color:rgba(45,107,255,.55);
+      box-shadow:0 0 0 3px rgba(45,107,255,.18);
+    }
+    .hint{
+      margin-top:10px;
+      color:var(--muted);
+      font-size:13px;
     }
     .pill{
       display:inline-flex;
+      align-items:center;
       gap:8px;
-      align-items:center;
-      padding: 8px 10px;
-      border-radius: 999px;
+      padding:8px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(0,0,0,.18);
+      font-size:12px;
+      color:var(--muted);
+    }
+    .onlineDot{
+      width:9px;height:9px;border-radius:50%;
+      background:var(--red);
+      box-shadow:0 0 0 6px rgba(255,77,79,.12);
+    }
+    .onlineDot.ok{
+      background:var(--green);
+      box-shadow:0 0 0 6px rgba(25,195,125,.12);
+    }
+    .btnRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;}
+    button{
+      border:0;
+      border-radius:16px;
+      padding:14px 18px;
+      font-size:16px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .btnBlue{background:var(--blue); color:white; flex:1; min-width:160px;}
+    .btnGrey{background:rgba(255,255,255,.08); color:var(--text); border:1px solid var(--line);}
+    .btnRed{background:rgba(255,77,79,.16); color:#ffd7d7; border:1px solid rgba(255,77,79,.35);}
+    .results{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+      margin-top:12px;
+    }
+    @media (max-width:520px){
+      .results{grid-template-columns:1fr}
+    }
+    .resBox{
+      border:1px solid rgba(25,195,125,.35);
+      background:rgba(25,195,125,.10);
+      border-radius:18px;
+      padding:14px;
+    }
+    .resLabel{font-size:12px;color:#b9f7da;margin-bottom:8px}
+    .resValue{
+      font-size:30px;
+      font-weight:900;
+      letter-spacing:.2px;
+      padding:10px 14px;
+      background:rgba(0,0,0,.20);
       border:1px solid rgba(255,255,255,.10);
-      background: rgba(7,16,31,.38);
-      color: var(--muted);
-      font-size: 12px;
-      white-space: nowrap;
-    }
-    .dot{
-      width:10px;height:10px;border-radius:50%;
-      background: var(--red);
-      box-shadow: 0 0 0 6px rgba(255,77,77,.12);
-    }
-    .dot.on{
-      background: var(--green);
-      box-shadow: 0 0 0 6px rgba(17,194,109,.12);
-    }
-    .split{
-      display:flex;
-      justify-content: space-between;
-      align-items:center;
-      gap:10px;
-      flex-wrap: wrap;
-    }
-    .hr{
-      height:1px;
-      background: rgba(255,255,255,.08);
-      margin: 12px 0;
-    }
-    .resultBox{
-      border-radius: 16px;
-      border: 1px solid rgba(17,194,109,.35);
-      background: rgba(17,194,109,.08);
-      padding: 12px;
-    }
-    .resultBox.red{
-      border-color: rgba(255,77,77,.35);
-      background: rgba(255,77,77,.08);
-    }
-    .big{
-      font-size: 30px;
-      font-weight: 800;
-      letter-spacing: .4px;
-    }
-    .small{
-      color: var(--muted);
-      font-size: 13px;
-      margin-top: 6px;
-      line-height: 1.35;
+      border-radius:16px;
+      text-align:center;
     }
     .warn{
-      color: #ffd3d3;
-      font-size: 13px;
-      line-height:1.35;
-      margin-top: 10px;
+      margin-top:12px;
+      border-radius:16px;
+      padding:12px 12px;
+      border:1px solid rgba(255,77,79,.35);
+      background:rgba(255,77,79,.14);
+      color:#ffe7e7;
+      font-size:13px;
     }
     .ok{
-      color: #c8ffe3;
-      font-size: 13px;
-      line-height:1.35;
-      margin-top: 10px;
+      margin-top:10px;
+      border-radius:16px;
+      padding:10px 12px;
+      border:1px solid rgba(25,195,125,.35);
+      background:rgba(25,195,125,.10);
+      color:#dfffea;
+      font-size:13px;
+    }
+    .mini{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:10px;
     }
     .foot{
-      margin-top: 14px;
-      color: rgba(159,176,209,.7);
-      font-size: 12px;
-      line-height: 1.35;
+      text-align:center;
+      color:rgba(255,255,255,.35);
+      font-size:12px;
+      margin-top:14px;
     }
   </style>
 </head>
@@ -205,495 +195,504 @@
 <body>
   <div class="wrap">
     <div class="title">
-      <div class="split" style="justify-content:center; gap:12px;">
-        <h1 style="margin:0;">Lot Calculator PRO – Doppio account (MT4)</h1>
-        <span class="pill" id="onlinePill"><span class="dot" id="onlineDot"></span><span id="onlineTxt">OFFLINE</span></span>
-      </div>
+      <h1>Lot Calculator PRO – Doppio account (MT4)</h1>
       <div class="sub">
-        Maniacalmente preciso per <b>XAUUSD</b>, <b>USDJPY</b>, <b>GBPJPY</b> · Rischio su <b>Balance</b> · Entry/Stop da TradingView.
+        Strumenti di trading di precisione — Prodotto da Alessandro Fillini<br>
+        <span style="opacity:.7">Precisione: XAUUSD (MT4 contract 100), USDJPY/GBPJPY (pip value reale in USD)</span>
       </div>
     </div>
 
-    <div class="row">
-      <!-- LEFT -->
-      <div class="card">
-        <div class="split">
-          <h2 style="margin:0;">Trade (condiviso)</h2>
-          <span class="pill" title="MT4 standard: 0.01 = 1 pip su JPY pairs e XAU con 2 decimali">
-            Pip calc: JPY=0.01 · XAU=0.01
-          </span>
+    <div class="card">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+        <div class="pill">
+          <span id="dot" class="onlineDot"></span>
+          <span id="netTxt">Tassi: non verificati</span>
         </div>
-
-        <div class="hr"></div>
-
-        <div class="grid two">
-          <div>
-            <label>Simbolo</label>
-            <select id="symbol">
-              <option value="USDJPY">USDJPY</option>
-              <option value="GBPJPY">GBPJPY</option>
-              <option value="XAUUSD">XAUUSD</option>
-            </select>
-          </div>
-          <div>
-            <label>Rischio %</label>
-            <input id="riskPct" type="number" inputmode="decimal" step="0.01" min="0" placeholder="es. 1" value="1">
-          </div>
+        <div class="pill" title="Versione del file per evitare cache">
+          v <span id="ver">2.1</span>
         </div>
-
-        <div class="grid two" style="margin-top:12px;">
-          <div>
-            <label>Entry (prezzo)</label>
-            <input id="entry" type="number" inputmode="decimal" step="0.001" placeholder="es. 154.750">
-          </div>
-          <div>
-            <label>Stop (prezzo)</label>
-            <input id="stop" type="number" inputmode="decimal" step="0.001" placeholder="es. 154.870">
-          </div>
-        </div>
-
-        <div class="hint" id="distHint">Distanza: —</div>
-        <div class="warn" id="sanityWarn" style="display:none;"></div>
-
-        <div style="margin-top:12px;">
-          <button class="btn" id="calcBtn">Calcola</button>
-        </div>
-
-        <div class="foot" id="calcNotes"></div>
-      </div>
-
-      <!-- RIGHT -->
-      <div class="card">
-        <h2>Conversioni (tassi)</h2>
-
-        <div class="hint">
-          Per JPY pairs servono <b>USD→JPY</b>. Per conti in EUR serve anche <b>USD→EUR</b>.
-          Premi “Aggiorna (online)” quando hai rete; se no inserisci a mano.
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="grid two">
-          <div>
-            <label>USD → JPY</label>
-            <input id="rateUsdJpy" type="number" inputmode="decimal" step="0.001" placeholder="es. 154.770">
-          </div>
-          <div>
-            <label>USD → EUR</label>
-            <input id="rateUsdEur" type="number" inputmode="decimal" step="0.0001" placeholder="es. 0.92">
-          </div>
-        </div>
-
-        <div style="margin-top:12px;">
-          <button class="mini-btn" id="refreshRatesBtn">Aggiorna (online)</button>
-        </div>
-
-        <div class="hint" id="ratesInfo">Ultimo aggiornamento: —</div>
       </div>
     </div>
 
-    <!-- ACCOUNTS -->
-    <div class="card" style="margin-top:14px;">
-      <div class="split">
-        <h2 style="margin:0;">Conti</h2>
-        <button class="mini-btn" id="resetBtn" style="max-width:220px;">Reset</button>
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="grid two">
-        <div class="card" style="box-shadow:none; background:rgba(255,255,255,.02);">
-          <h2 style="margin:0 0 10px;">Conto A</h2>
-          <div class="grid two">
-            <div>
-              <label>Balance A</label>
-              <input id="balA" type="number" inputmode="decimal" step="0.01" placeholder="es. 100000" value="100000">
-            </div>
-            <div>
-              <label>Valuta A</label>
-              <select id="ccyA">
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="margin-top:12px;" class="resultBox" id="boxA">
-            <div class="small">Lots (A)</div>
-            <div class="big" id="lotsA">—</div>
-            <div class="small" id="riskA">—</div>
-          </div>
+    <div class="card">
+      <h2>Commercio (condiviso)</h2>
+      <div class="row">
+        <div>
+          <label>Simbolo</label>
+          <select id="symbol">
+            <option value="USDJPY">USDJPY</option>
+            <option value="GBPJPY">GBPJPY</option>
+            <option value="XAUUSD">XAUUSD</option>
+          </select>
         </div>
-
-        <div class="card" style="box-shadow:none; background:rgba(255,255,255,.02);">
-          <h2 style="margin:0 0 10px;">Conto B</h2>
-          <div class="grid two">
-            <div>
-              <label>Balance B</label>
-              <input id="balB" type="number" inputmode="decimal" step="0.01" placeholder="es. 6000" value="6000">
-            </div>
-            <div>
-              <label>Valuta B</label>
-              <select id="ccyB">
-                <option value="USD">USD</option>
-                <option value="EUR">EUR</option>
-              </select>
-            </div>
-          </div>
-
-          <div style="margin-top:12px;" class="resultBox" id="boxB">
-            <div class="small">Lots (B)</div>
-            <div class="big" id="lotsB">—</div>
-            <div class="small" id="riskB">—</div>
-          </div>
+        <div>
+          <label>Rischio % (su Balance)</label>
+          <input id="riskPct" type="number" inputmode="decimal" step="0.01" min="0" value="1">
+        </div>
+        <div>
+          <label>Iscrizione (Entry)</label>
+          <input id="entry" type="number" inputmode="decimal" step="0.00001" placeholder="es. 154.750">
+        </div>
+        <div>
+          <label>Fermare (Stop)</label>
+          <input id="stop" type="number" inputmode="decimal" step="0.00001" placeholder="es. 154.870">
         </div>
       </div>
 
-      <div class="foot" style="margin-top:12px;">
-        Regole MT4 usate: <b>Forex JPY</b> contract 100,000 (pip=0.01 ⇒ 1000 JPY/pip/lot, convertito in USD/EUR col tasso),
-        <b>XAUUSD</b> contract 100 oz (pip=0.01 ⇒ 1 USD/pip/lot).
-        Lot minimo 0.01, step 0.01 (standard).
-      </div>
+      <div class="hint" id="distanceHint">Distanza ingresso-arresto: —</div>
+      <div class="mini" id="quoteHint">Quote: —</div>
     </div>
+
+    <div class="card">
+      <h2>Conversioni (USD → EUR e USD → JPY)</h2>
+      <div class="row">
+        <div>
+          <label>USD → JPY</label>
+          <input id="usdJpy" type="number" inputmode="decimal" step="0.000001" placeholder="es. 154.75">
+        </div>
+        <div>
+          <label>USD → EUR</label>
+          <input id="usdEur" type="number" inputmode="decimal" step="0.000001" placeholder="es. 0.92">
+        </div>
+      </div>
+
+      <div class="btnRow">
+        <button class="btnGrey" id="btnRates">Aggiorna tassi (online)</button>
+        <button class="btnRed" id="btnClearRates">Reset tassi</button>
+      </div>
+      <div class="mini" id="ratesInfo">Ultimo aggiornamento: —</div>
+      <div class="mini" id="ratesActive">Tassi attivi: —</div>
+    </div>
+
+    <div class="card">
+      <h2>Conti</h2>
+
+      <div class="row">
+        <div>
+          <label>Conto A — Balance</label>
+          <input id="balA" type="number" inputmode="decimal" step="0.01" value="100000">
+        </div>
+        <div>
+          <label>Conto A — Valuta</label>
+          <select id="curA">
+            <option value="USD">Dollaro statunitense (USD)</option>
+            <option value="EUR">Euro (EUR)</option>
+          </select>
+        </div>
+
+        <div>
+          <label>Conto B — Balance</label>
+          <input id="balB" type="number" inputmode="decimal" step="0.01" value="6000">
+        </div>
+        <div>
+          <label>Conto B — Valuta</label>
+          <select id="curB">
+            <option value="USD">Dollaro statunitense (USD)</option>
+            <option value="EUR">Euro (EUR)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="btnRow">
+        <button class="btnBlue" id="btnCalc">Calcolare</button>
+        <button class="btnGrey" id="btnReset">Reset campi</button>
+      </div>
+
+      <div class="results">
+        <div class="resBox">
+          <div class="resLabel">Lotti Conto A</div>
+          <div class="resValue" id="lotsA">—</div>
+        </div>
+        <div class="resBox">
+          <div class="resLabel">Lotti Conto B</div>
+          <div class="resValue" id="lotsB">—</div>
+        </div>
+      </div>
+
+      <div id="msg"></div>
+    </div>
+
+    <div class="foot">© 2026 Alessandro Fillini — uso personale</div>
   </div>
 
 <script>
-/* ===== Helpers ===== */
-const $ = (id) => document.getElementById(id);
+/**
+ * MT4 assumptions (standard, per broker tipico):
+ * - USDJPY / GBPJPY: 1 lot = 100,000 base units
+ *   pip size = 0.01
+ *   pip value in QUOTE currency per lot = 100,000 * 0.01 = 1000 JPY/pip
+ *   then convert JPY->USD: / USDJPY rate
+ *
+ * - XAUUSD: MT4 contract size typically 100 oz per 1 lot
+ *   tick/pip size in price: use 0.01 as "pip" unit? No.
+ *   We compute from PRICE distance in USD:
+ *     loss_per_lot_usd = |entry-stop| * contractSize
+ *   with contractSize = 100 (oz)
+ */
 
-function nowISO(){
-  const d = new Date();
-  const pad = (n)=>String(n).padStart(2,"0");
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const VERSION = "2.1";
+
+/** UI */
+const el = (id) => document.getElementById(id);
+
+const state = {
+  rates: {
+    usdJpy: null,
+    usdEur: null,
+    updatedAt: null
+  }
+};
+
+/** LocalStorage keys */
+const LS_KEY = "lotcalc_mt4_v21_rates";
+
+/** Helpers */
+function n(x){
+  const v = Number(x);
+  return Number.isFinite(v) ? v : null;
 }
-function toNum(v){
-  const n = Number(String(v).replace(",", "."));
-  return isFinite(n) ? n : NaN;
+function fmt(x, d=2){
+  if (!Number.isFinite(x)) return "—";
+  return x.toLocaleString("it-IT", {minimumFractionDigits:d, maximumFractionDigits:d});
 }
-function fmt(n, digits=2){
-  if (!isFinite(n)) return "—";
-  return n.toFixed(digits);
+function fmtSmart(x){
+  if (!Number.isFinite(x)) return "—";
+  const ax = Math.abs(x);
+  const d = ax >= 100 ? 2 : ax >= 10 ? 2 : ax >= 1 ? 2 : 3;
+  return x.toLocaleString("it-IT", {minimumFractionDigits:d, maximumFractionDigits:d});
 }
-function clampLot(lot){
-  // MT4 standard: min 0.01, step 0.01
-  if (!isFinite(lot) || lot <= 0) return 0;
-  const stepped = Math.floor(lot / 0.01) * 0.01;
-  return Math.max(0.01, Number(stepped.toFixed(2)));
+function clampMinLot(lots, minLot=0.01){
+  return Math.max(0, lots) < minLot ? minLot : lots;
+}
+function roundLot(lots){
+  // MT4 spesso step 0.01 (puoi cambiare se vuoi)
+  return Math.round(lots * 100) / 100;
 }
 
-/* ===== Online state ===== */
-function setOnlineUI(isOnline){
-  $("onlineDot").className = "dot" + (isOnline ? " on" : "");
-  $("onlineTxt").textContent = isOnline ? "ONLINE" : "OFFLINE";
+function setOnline(ok){
+  const dot = el("dot");
+  const txt = el("netTxt");
+  dot.classList.toggle("ok", !!ok);
+  txt.textContent = ok ? "Tassi: online ok (o manuali validi)" : "Tassi: mancanti / non validi";
 }
 
-/* ===== Rates (with fallback providers) ===== */
-const LS_KEY = "lotcalc_rates_v2";
-function loadSavedRates(){
+/** Rate storage */
+function loadRates(){
   try{
     const raw = localStorage.getItem(LS_KEY);
-    if(!raw) return null;
-    return JSON.parse(raw);
-  }catch(e){ return null; }
+    if(!raw) return;
+    const obj = JSON.parse(raw);
+    if(obj && typeof obj === "object"){
+      state.rates.usdJpy = n(obj.usdJpy);
+      state.rates.usdEur = n(obj.usdEur);
+      state.rates.updatedAt = obj.updatedAt || null;
+    }
+  }catch(e){}
 }
-function saveRates(data){
-  localStorage.setItem(LS_KEY, JSON.stringify(data));
+function saveRates(){
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify(state.rates));
+  }catch(e){}
+}
+function resetRates(){
+  state.rates.usdJpy = null;
+  state.rates.usdEur = null;
+  state.rates.updatedAt = null;
+  saveRates();
+  renderRates();
 }
 
+/** Fetch live rates (no API key) */
 async function fetchRatesOnline(){
-  // We need: USD->JPY and USD->EUR
-  // Try provider A then provider B
-  const providers = [
+  // exchangerate.host può cambiare politiche; fallback su open.er-api.com
+  // Qui proviamo 2 fonti.
+  const sources = [
     async () => {
-      const r = await fetch("https://open.er-api.com/v6/latest/USD", {cache:"no-store"});
-      if(!r.ok) throw new Error("providerA bad status");
+      const url = "https://api.exchangerate.host/latest?base=USD&symbols=JPY,EUR";
+      const r = await fetch(url, {cache:"no-store"});
+      if(!r.ok) throw new Error("exchangerate.host non ok");
       const j = await r.json();
-      if(j.result !== "success") throw new Error("providerA not success");
-      return { usdJpy: j.rates.JPY, usdEur: j.rates.EUR };
+      if(!j || !j.rates) throw new Error("risposta rates mancante");
+      return {usdJpy: n(j.rates.JPY), usdEur: n(j.rates.EUR)};
     },
     async () => {
-      const r = await fetch("https://api.exchangerate.host/latest?base=USD&symbols=JPY,EUR", {cache:"no-store"});
-      if(!r.ok) throw new Error("providerB bad status");
+      const url = "https://open.er-api.com/v6/latest/USD";
+      const r = await fetch(url, {cache:"no-store"});
+      if(!r.ok) throw new Error("er-api non ok");
       const j = await r.json();
-      if(!j.rates) throw new Error("providerB no rates");
-      return { usdJpy: j.rates.JPY, usdEur: j.rates.EUR };
+      if(!j || !j.rates) throw new Error("risposta rates mancante");
+      return {usdJpy: n(j.rates.JPY), usdEur: n(j.rates.EUR)};
     }
   ];
 
   let lastErr = null;
-  for(const p of providers){
+  for(const s of sources){
     try{
-      const out = await p();
-      if(!isFinite(out.usdJpy) || !isFinite(out.usdEur)) throw new Error("invalid rates");
-      return out;
+      const out = await s();
+      if(!out.usdJpy || !out.usdEur) throw new Error("tassi non numerici");
+      state.rates.usdJpy = out.usdJpy;
+      state.rates.usdEur = out.usdEur;
+      state.rates.updatedAt = new Date().toISOString();
+      saveRates();
+      renderRates();
+      return true;
     }catch(e){
       lastErr = e;
     }
   }
-  throw lastErr || new Error("rates fetch failed");
+  renderRates();
+  alert("Impossibile aggiornare online. Inserisci i tassi a mano (USD→JPY e USD→EUR).");
+  console.warn(lastErr);
+  return false;
 }
 
-async function refreshRates(){
-  try{
-    setOnlineUI(navigator.onLine);
-    const rates = await fetchRatesOnline();
-    $("rateUsdJpy").value = fmt(rates.usdJpy, 3);
-    $("rateUsdEur").value = fmt(rates.usdEur, 4);
-    const stamp = nowISO();
-    $("ratesInfo").textContent = "Ultimo aggiornamento: " + stamp + " (online)";
-    saveRates({ ...rates, stamp });
-  }catch(e){
-    // keep manual/saved values
-    $("ratesInfo").textContent = "Impossibile aggiornare online. Usa i tassi salvati o inserisci a mano.";
-  }
-}
-
-/* ===== Core calc: match MyFxBook logic =====
-   Inputs: balance in account currency, risk %, stop in pips
-   Lots = riskMoney / (pips * pipValuePerLotInAccount)
-*/
-function pipSizeFor(symbol){
-  // per tua richiesta: prendi Entry/Stop da TradingView, e calcola pips come:
-  // JPY pairs: 0.01 = 1 pip
-  // XAUUSD: 0.01 = 1 "pip" (tipico MT4 gold a 2 decimali)
-  if(symbol === "XAUUSD") return 0.01;
-  return 0.01; // USDJPY, GBPJPY
-}
-
-function sanityCheck(symbol, entry, stop){
-  if (!isFinite(entry) || !isFinite(stop)) return "";
-  const lo = Math.min(entry, stop);
-  const hi = Math.max(entry, stop);
-
-  if (symbol === "USDJPY" || symbol === "GBPJPY") {
-    if (lo < 50 || hi > 300) {
-      return "⚠️ Per " + symbol + " Entry/Stop di solito sono tra 50 e 300. Hai inserito un valore fuori range (es. 754.xxx). Probabilmente manca '1' davanti (154.xxx).";
-    }
-  }
-  if (symbol === "XAUUSD") {
-    if (lo < 200 || hi > 10000) {
-      return "⚠️ Per XAUUSD Entry/Stop devono essere valori realistici (es. 1500–3000). Controlla i numeri inseriti.";
-    }
-  }
-  return "";
-}
-
-function getRates(){
-  const usdJpy = toNum($("rateUsdJpy").value);
-  const usdEur = toNum($("rateUsdEur").value);
-  return { usdJpy, usdEur };
-}
-
-function pipValuePerLotInAccount(symbol, entryPrice, accountCcy, rates){
-  // Contract sizes:
-  // Forex standard: 100,000 units base currency
-  // For JPY pairs pip value in quote (JPY) per lot = 100,000 * 0.01 = 1000 JPY per pip
-  // Then convert JPY -> account currency (USD/EUR) using USDJPY and USD->EUR
-  // XAUUSD: contract 100 oz; 0.01 move = 100 * 0.01 = 1 USD per pip
+/** Core: pip/price loss per 1 lot in USD */
+function lossPerLotUSD(symbol, entry, stop, usdJpy){
+  const dist = Math.abs(entry - stop);
 
   if(symbol === "XAUUSD"){
-    const pipValueUSD = 1; // 1 USD per 0.01 move per 1 lot
-    if(accountCcy === "USD") return pipValueUSD;
-    if(accountCcy === "EUR"){
-      if(!isFinite(rates.usdEur)) return NaN;
-      return pipValueUSD * rates.usdEur;
-    }
-    return NaN;
+    const contractSize = 100; // MT4 standard for gold
+    // price is already in USD per oz; P/L = dist * contractSize
+    return dist * contractSize;
   }
 
   // JPY pairs:
-  const pipValueJPY = 1000; // JPY per pip per 1 lot
-  if(!isFinite(rates.usdJpy) || rates.usdJpy <= 0) return NaN;
+  // pip size 0.01; pip value per lot in JPY = 1000 JPY per pip
+  // pips = dist / 0.01
+  const pipSize = 0.01;
+  const pips = dist / pipSize;
 
-  // JPY -> USD = 1 / USDJPY
-  const jpyToUsd = 1 / rates.usdJpy;
-
-  if(accountCcy === "USD"){
-    return pipValueJPY * jpyToUsd;
-  }
-  if(accountCcy === "EUR"){
-    if(!isFinite(rates.usdEur)) return NaN;
-    return pipValueJPY * jpyToUsd * rates.usdEur; // JPY->USD then USD->EUR
-  }
-  return NaN;
+  const pipValueJPY = 1000; // IMPORTANT: this is the key (100k * 0.01)
+  // convert JPY to USD using USDJPY rate
+  if(!usdJpy || usdJpy <= 0) return null;
+  const pipValueUSD = pipValueJPY / usdJpy; // USD per pip per lot
+  return pips * pipValueUSD;
 }
 
-function calcLotsForAccount(balance, riskPct, pips, symbol, entryPrice, accountCcy, rates){
-  const riskMoney = balance * (riskPct / 100);
-  const pipVal = pipValuePerLotInAccount(symbol, entryPrice, accountCcy, rates);
-  if(!isFinite(riskMoney) || riskMoney <= 0) return { raw: NaN, adj: NaN, pipVal: pipVal, riskMoney: riskMoney };
-  if(!isFinite(pips) || pips <= 0) return { raw: NaN, adj: NaN, pipVal: pipVal, riskMoney: riskMoney };
-  if(!isFinite(pipVal) || pipVal <= 0) return { raw: NaN, adj: NaN, pipVal: pipVal, riskMoney: riskMoney };
-
-  const rawLots = riskMoney / (pips * pipVal);
-  const adjLots = clampLot(rawLots);
-  return { raw: rawLots, adj: adjLots, pipVal: pipVal, riskMoney: riskMoney };
+function quoteCurrency(symbol){
+  if(symbol === "XAUUSD") return "USD";
+  if(symbol === "USDJPY") return "JPY";
+  if(symbol === "GBPJPY") return "JPY";
+  return "—";
 }
 
-function renderAccount(boxId, lotsId, riskId, res, pips){
-  const box = $(boxId);
-  const lotsEl = $(lotsId);
-  const riskEl = $(riskId);
+/** Convert account currency risk amount to USD risk amount */
+function riskAmountUSD(balance, riskPct, accountCurrency, usdEur){
+  const risk = balance * (riskPct / 100);
+  if(accountCurrency === "USD") return risk;
+  // EUR account: convert EUR -> USD
+  // we have USD->EUR, so EUR->USD = 1/(USD->EUR)
+  if(!usdEur || usdEur <= 0) return null;
+  return risk / usdEur;
+}
 
-  if(!isFinite(res.raw) || !isFinite(res.adj)){
-    lotsEl.textContent = "—";
-    riskEl.textContent = "—";
-    box.className = "resultBox red";
+/** Render rates box and online indicator */
+function renderRates(){
+  // read inputs first
+  const uJ = n(el("usdJpy").value);
+  const uE = n(el("usdEur").value);
+
+  // if user typed, override state (and persist)
+  if(uJ && uJ > 0) state.rates.usdJpy = uJ;
+  if(uE && uE > 0) state.rates.usdEur = uE;
+
+  // persist typed values too
+  saveRates();
+
+  const ok = !!(state.rates.usdJpy && state.rates.usdEur);
+  setOnline(ok);
+
+  el("usdJpy").value = state.rates.usdJpy ? String(state.rates.usdJpy) : "";
+  el("usdEur").value = state.rates.usdEur ? String(state.rates.usdEur) : "";
+
+  const upd = state.rates.updatedAt ? new Date(state.rates.updatedAt) : null;
+  el("ratesInfo").textContent = "Ultimo aggiornamento: " + (upd ? upd.toLocaleString("it-IT") : "—");
+
+  const activeTxt = `Tassi attivi: USD→JPY=${state.rates.usdJpy ? fmtSmart(state.rates.usdJpy) : "—"} • USD→EUR=${state.rates.usdEur ? fmtSmart(state.rates.usdEur) : "—"}`;
+  el("ratesActive").textContent = activeTxt;
+
+  el("ver").textContent = VERSION;
+}
+
+/** Distance hint */
+function renderDistance(){
+  const entry = n(el("entry").value);
+  const stop  = n(el("stop").value);
+  const sym = el("symbol").value;
+
+  if(!entry || !stop){
+    el("distanceHint").textContent = "Distanza ingresso-arresto: —";
+    el("quoteHint").textContent = "Quote: —";
     return;
   }
 
-  lotsEl.textContent = fmt(res.adj, 2);
+  const dist = Math.abs(entry - stop);
+  const quote = quoteCurrency(sym);
 
-  // show if adjusted changes risk
-  const riskIfAdj = res.adj * pips * res.pipVal;
-  const diff = Math.abs(riskIfAdj - res.riskMoney);
-
-  if(res.adj !== 0 && diff > (res.riskMoney * 0.02)){
-    box.className = "resultBox red";
-    riskEl.textContent = `Atteso: ${fmt(res.riskMoney,2)} · Con step/min broker: ${fmt(riskIfAdj,2)}`;
+  let txt = "";
+  if(sym === "XAUUSD"){
+    txt = `Distanza ingresso-arresto: ${fmtSmart(dist)} (prezzo)`;
+    el("quoteHint").textContent = `Quote: USD • Contract size MT4: 100 • Loss/lot = distanza×100`;
   }else{
-    box.className = "resultBox";
-    riskEl.textContent = `Rischio: ${fmt(riskIfAdj,2)} (target: ${fmt(res.riskMoney,2)})`;
+    const pipSize = 0.01;
+    const pips = dist / pipSize;
+    txt = `Distanza ingresso-arresto: ${fmtSmart(dist)} (prezzo) ≈ ${fmtSmart(pips)} pips`;
+    el("quoteHint").textContent = `Quote: ${quote} • Pip size: 0.01 • Pip value/lot: 1000 JPY → convertito in USD con USDJPY`;
   }
+
+  el("distanceHint").textContent = txt;
 }
 
-/* ===== Main ===== */
-function updateDistanceUI(){
-  const symbol = $("symbol").value;
-  const entry = toNum($("entry").value);
-  const stop  = toNum($("stop").value);
-  const pipSize = pipSizeFor(symbol);
+/** Calculate lots for both accounts */
+function calculate(){
+  const sym = el("symbol").value;
 
-  const warn = sanityCheck(symbol, entry, stop);
-  if(warn){
-    $("sanityWarn").style.display = "block";
-    $("sanityWarn").textContent = warn;
-  }else{
-    $("sanityWarn").style.display = "none";
-    $("sanityWarn").textContent = "";
-  }
+  const riskPct = n(el("riskPct").value);
+  const entry = n(el("entry").value);
+  const stop = n(el("stop").value);
 
-  if(!isFinite(entry) || !isFinite(stop) || entry === stop){
-    $("distHint").textContent = "Distanza: —";
+  const balA = n(el("balA").value);
+  const curA = el("curA").value;
+  const balB = n(el("balB").value);
+  const curB = el("curB").value;
+
+  const usdJpy = state.rates.usdJpy;
+  const usdEur = state.rates.usdEur;
+
+  const msg = el("msg");
+  msg.innerHTML = "";
+
+  // Basic validation
+  const errs = [];
+  if(!riskPct || riskPct <= 0) errs.push("Inserisci un rischio % valido.");
+  if(!entry || !stop || entry <= 0 || stop <= 0) errs.push("Inserisci Entry e Stop validi (numeri).");
+  if(!balA || balA <= 0) errs.push("Inserisci Balance Conto A valido.");
+  if(!balB || balB <= 0) errs.push("Inserisci Balance Conto B valido.");
+
+  // rates required for:
+  // - JPY pairs always need USDJPY
+  // - EUR accounts need USD→EUR
+  if((sym !== "XAUUSD") && (!usdJpy || usdJpy <= 0)) errs.push("Per USDJPY/GBPJPY serve il tasso USD→JPY.");
+  if((curA === "EUR" || curB === "EUR") && (!usdEur || usdEur <= 0)) errs.push("Per conti in EUR serve il tasso USD→EUR.");
+
+  if(errs.length){
+    msg.innerHTML = `<div class="warn">⚠️ ${errs.join("<br>")}</div>`;
+    el("lotsA").textContent = "—";
+    el("lotsB").textContent = "—";
     return;
   }
 
-  const distPrice = Math.abs(entry - stop);
-  const pips = distPrice / pipSize;
+  // Risk amounts in USD
+  const riskUsdA = riskAmountUSD(balA, riskPct, curA, usdEur);
+  const riskUsdB = riskAmountUSD(balB, riskPct, curB, usdEur);
 
-  const pipLabel = (symbol === "XAUUSD") ? "pips (0.01)" : "pips (0.01)";
-  $("distHint").textContent = `Distanza: ${fmt(distPrice, 3)} prezzo · ${fmt(pips, 1)} ${pipLabel}`;
-}
-
-function calculateAll(){
-  const symbol = $("symbol").value;
-  const riskPct = toNum($("riskPct").value);
-  const entry = toNum($("entry").value);
-  const stop  = toNum($("stop").value);
-
-  const { usdJpy, usdEur } = getRates();
-
-  // online indicator for rates: if we have numbers and navigator online, show ON.
-  const hasRates = isFinite(usdJpy) && usdJpy>0 && isFinite(usdEur) && usdEur>0;
-  setOnlineUI(!!navigator.onLine && hasRates);
-
-  const pipSize = pipSizeFor(symbol);
-  if(!isFinite(entry) || !isFinite(stop) || entry === stop){
-    $("calcNotes").textContent = "Inserisci Entry e Stop (diversi) per calcolare.";
-    renderAccount("boxA","lotsA","riskA",{raw:NaN,adj:NaN},NaN);
-    renderAccount("boxB","lotsB","riskB",{raw:NaN,adj:NaN},NaN);
+  if(!riskUsdA || !riskUsdB){
+    msg.innerHTML = `<div class="warn">⚠️ Conversione valuta non possibile. Controlla i tassi.</div>`;
     return;
   }
 
-  const distPrice = Math.abs(entry - stop);
-  const pips = distPrice / pipSize;
+  // Loss per 1 lot in USD
+  const lossLotUsd = lossPerLotUSD(sym, entry, stop, usdJpy);
 
-  const balA = toNum($("balA").value);
-  const balB = toNum($("balB").value);
-  const ccyA = $("ccyA").value;
-  const ccyB = $("ccyB").value;
-
-  const rates = { usdJpy, usdEur };
-
-  const resA = calcLotsForAccount(balA, riskPct, pips, symbol, entry, ccyA, rates);
-  const resB = calcLotsForAccount(balB, riskPct, pips, symbol, entry, ccyB, rates);
-
-  renderAccount("boxA","lotsA","riskA",resA,pips);
-  renderAccount("boxB","lotsB","riskB",resB,pips);
-
-  // Notes & debug (compact)
-  const pipValA = resA.pipVal;
-  const pipValB = resB.pipVal;
-
-  let note = `Pips calcolati: ${fmt(pips,1)} · `;
-  if(symbol === "XAUUSD"){
-    note += `PipValue/lot: ${ccyA===ccyB ? (ccyA) : `${ccyA}/${ccyB}`} basato su XAU (1 USD/pip/lot).`;
-  }else{
-    note += `PipValue/lot (A): ${isFinite(pipValA)?fmt(pipValA,2):"—"} ${ccyA}/pip · (B): ${isFinite(pipValB)?fmt(pipValB,2):"—"} ${ccyB}/pip.`;
+  if(!lossLotUsd || lossLotUsd <= 0){
+    msg.innerHTML = `<div class="warn">⚠️ Impossibile calcolare la perdita/lot. Controlla i tassi e i valori.</div>`;
+    return;
   }
-  $("calcNotes").textContent = note;
+
+  let lotsA = riskUsdA / lossLotUsd;
+  let lotsB = riskUsdB / lossLotUsd;
+
+  // MT4 minimum lot
+  const minLot = 0.01;
+  const rawA = lotsA;
+  const rawB = lotsB;
+
+  lotsA = roundLot(Math.max(0, lotsA));
+  lotsB = roundLot(Math.max(0, lotsB));
+
+  const belowA = lotsA > 0 && lotsA < minLot;
+  const belowB = lotsB > 0 && lotsB < minLot;
+
+  // display (rounded)
+  el("lotsA").textContent = (lotsA === 0 ? "0.00" : lotsA.toFixed(2));
+  el("lotsB").textContent = (lotsB === 0 ? "0.00" : lotsB.toFixed(2));
+
+  // warnings if below minimum
+  let warnTxt = "";
+  if(rawA > 0 && rawA < minLot){
+    const estRiskA = lossLotUsd * minLot; // USD
+    warnTxt += `Conto A: calcolato ${rawA.toFixed(3)} < minimo broker (0.01). Se usi 0.01, rischio stimato ≈ ${fmt(estRiskA,2)} USD.<br>`;
+    el("lotsA").textContent = "0.01";
+  }
+  if(rawB > 0 && rawB < minLot){
+    const estRiskB = lossLotUsd * minLot;
+    warnTxt += `Conto B: calcolato ${rawB.toFixed(3)} < minimo broker (0.01). Se usi 0.01, rischio stimato ≈ ${fmt(estRiskB,2)} USD.<br>`;
+    el("lotsB").textContent = "0.01";
+  }
+
+  const summary = `
+    <div class="ok">
+      ✅ Calcolo OK.<br>
+      • Perdita per 1.00 lot ≈ <b>${fmt(lossLotUsd,2)} USD</b><br>
+      • Rischio A ≈ <b>${fmt(riskUsdA,2)} USD</b> • Rischio B ≈ <b>${fmt(riskUsdB,2)} USD</b>
+    </div>
+  `;
+
+  if(warnTxt){
+    msg.innerHTML = summary + `<div class="warn">⚠️ ${warnTxt}</div>`;
+  }else{
+    msg.innerHTML = summary;
+  }
 }
 
-function resetAll(){
-  $("symbol").value = "USDJPY";
-  $("riskPct").value = "1";
-  $("entry").value = "";
-  $("stop").value = "";
-  $("balA").value = "100000";
-  $("ccyA").value = "USD";
-  $("balB").value = "6000";
-  $("ccyB").value = "USD";
-
-  const saved = loadSavedRates();
-  if(saved){
-    $("rateUsdJpy").value = fmt(saved.usdJpy, 3);
-    $("rateUsdEur").value = fmt(saved.usdEur, 4);
-    $("ratesInfo").textContent = "Ultimo aggiornamento: " + (saved.stamp || "—") + " (salvato)";
-  }else{
-    $("rateUsdJpy").value = "";
-    $("rateUsdEur").value = "";
-    $("ratesInfo").textContent = "Ultimo aggiornamento: —";
-  }
-
-  updateDistanceUI();
-  calculateAll();
+/** Reset fields */
+function resetFields(){
+  el("riskPct").value = "1";
+  el("entry").value = "";
+  el("stop").value = "";
+  el("lotsA").textContent = "—";
+  el("lotsB").textContent = "—";
+  el("msg").innerHTML = "";
+  renderDistance();
 }
 
-/* ===== Init ===== */
-window.addEventListener("online", () => setOnlineUI(true));
-window.addEventListener("offline", () => setOnlineUI(false));
+/** Init */
+function init(){
+  loadRates();
+  el("ver").textContent = VERSION;
 
-["symbol","riskPct","entry","stop"].forEach(id=>{
-  $(id).addEventListener("input", ()=>{ updateDistanceUI(); });
-  $(id).addEventListener("change", ()=>{ updateDistanceUI(); });
-});
-["rateUsdJpy","rateUsdEur","balA","balB","ccyA","ccyB"].forEach(id=>{
-  $(id).addEventListener("input", ()=>{ /* do nothing */ });
-  $(id).addEventListener("change", ()=>{ /* do nothing */ });
-});
+  // apply loaded values to inputs
+  if(state.rates.usdJpy) el("usdJpy").value = state.rates.usdJpy;
+  if(state.rates.usdEur) el("usdEur").value = state.rates.usdEur;
 
-$("calcBtn").addEventListener("click", calculateAll);
-$("refreshRatesBtn").addEventListener("click", async ()=>{
-  await refreshRates();
-  calculateAll();
-});
-$("resetBtn").addEventListener("click", resetAll);
+  renderRates();
+  renderDistance();
 
-(function init(){
-  setOnlineUI(navigator.onLine);
+  el("btnRates").addEventListener("click", fetchRatesOnline);
+  el("btnClearRates").addEventListener("click", () => {
+    resetRates();
+  });
 
-  const saved = loadSavedRates();
-  if(saved){
-    $("rateUsdJpy").value = fmt(saved.usdJpy, 3);
-    $("rateUsdEur").value = fmt(saved.usdEur, 4);
-    $("ratesInfo").textContent = "Ultimo aggiornamento: " + (saved.stamp || "—") + " (salvato)";
-  }else{
-    $("ratesInfo").textContent = "Ultimo aggiornamento: —";
-  }
+  ["usdJpy","usdEur"].forEach(id=>{
+    el(id).addEventListener("input", () => {
+      // update state + indicator as user types
+      renderRates();
+    });
+  });
 
-  updateDistanceUI();
-  calculateAll();
-})();
+  ["symbol","entry","stop"].forEach(id=>{
+    el(id).addEventListener("input", renderDistance);
+    el(id).addEventListener("change", renderDistance);
+  });
+
+  el("btnCalc").addEventListener("click", calculate);
+  el("btnReset").addEventListener("click", resetFields);
+
+  // small: if online fetch fails due to CORS/offline, we don't block
+  // but we keep indicator in red until rates exist.
+}
+
+init();
 </script>
 </body>
 </html>
