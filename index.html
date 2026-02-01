@@ -1,502 +1,142 @@
 <!doctype html>
 <html lang="it">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Lot Calculator PRO (MT4)</title>
-  <style>
-    :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
-    body{margin:0;background:#0b1020;color:#e5e7eb}
-    .wrap{max-width:980px;margin:0 auto;padding:16px}
-    .card{background:#111827;border:1px solid #1f2937;border-radius:14px;padding:14px;margin:12px 0}
-    h1{font-size:18px;margin:0 0 6px}
-    h2{font-size:13px;margin:0 0 10px;color:#9ca3af;font-weight:600}
-    label{font-size:12px;color:#9ca3af;display:block;margin:8px 0 4px}
-    input,select,button{width:100%;padding:10px;border-radius:12px;border:1px solid #374151;background:#0b1226;color:#e5e7eb;outline:none}
-    input:focus,select:focus{border-color:#60a5fa}
-    .row{display:grid;grid-template-columns:1fr;gap:10px}
-    @media (min-width:860px){ .row{grid-template-columns:repeat(12,1fr)} }
-    .c3{grid-column:span 3}.c4{grid-column:span 4}.c6{grid-column:span 6}.c12{grid-column:span 12}
-    .muted{color:#9ca3af;font-size:12px}
-    .btn{cursor:pointer}
-    .btnPrimary{background:#1d4ed8;border-color:#2563eb}
-    .btnGhost{background:#0b1226}
-    .btnDanger{background:#991b1b;border-color:#7f1d1d}
-    table{width:100%;border-collapse:collapse}
-    th,td{border-bottom:1px solid #1f2937;padding:10px 6px;text-align:left;vertical-align:top}
-    th{color:#9ca3af;font-size:12px;font-weight:600}
-    .out{font-variant-numeric:tabular-nums}
-    .pill{display:inline-block;padding:4px 10px;border-radius:999px;border:1px solid #374151;background:#0b1226;color:#9ca3af;font-size:12px}
-    .flex{display:flex;gap:10px;align-items:center;justify-content:space-between}
-    .warn{color:#fde68a}
-    .ok{color:#86efac}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lot Calculator PRO – Multi Account (MT4)</title>
 
-    /* FIX mobile: niente sovrapposizioni + niente zoom */
-    @media (max-width: 520px) {
-      .row { grid-template-columns: 1fr !important; }
-      .c3,.c4,.c6,.c12 { grid-column: span 12 !important; }
-      input,select { font-size:16px; }
-      button { width:100%; }
-    }
-  </style>
+<style>
+body{margin:0;font-family:system-ui;background:#0b1220;color:#e5e7eb}
+.wrap{max-width:800px;margin:auto;padding:16px}
+.card{background:#111b2e;border-radius:16px;padding:14px;margin-bottom:14px}
+h1,h2{margin:0 0 10px}
+label{font-size:12px;color:#94a3b8}
+input,select{width:100%;padding:12px;border-radius:12px;border:1px solid #1f2a44;background:#0f172a;color:#fff;font-size:16px}
+.row{display:grid;gap:10px}
+@media(min-width:600px){.two{grid-template-columns:1fr 1fr}}
+button{width:100%;padding:14px;border-radius:14px;border:0;background:#2563eb;color:#fff;font-weight:800;font-size:16px}
+.result{margin-top:10px;padding:12px;border-radius:12px;background:#052e16;border:1px solid #22c55e}
+.result input{background:#022c22;border-color:#22c55e;font-size:20px;text-align:center;font-weight:900}
+.sub{font-size:12px;color:#94a3b8}
+</style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="card">
-      <div class="flex">
-        <div>
-          <h1>Lot Calculator PRO (MT4)</h1>
-          <div class="muted">Maniacalmente preciso per: <b>XAUUSD</b>, <b>USDJPY</b>, <b>GBPJPY</b> • Rischio su <b>Balance</b> • Entry/Stop da TradingView.</div>
-        </div>
-        <span class="pill" id="statusPill">…</span>
-      </div>
-    </div>
+<div class="wrap">
 
-    <div class="card">
-      <h2>Trade</h2>
-      <div class="row">
-        <div class="c4">
-          <label>Strumento</label>
-          <select id="symbol">
-            <option value="XAUUSD">XAUUSD</option>
-            <option value="USDJPY">USDJPY</option>
-            <option value="GBPJPY">GBPJPY</option>
-          </select>
-        </div>
-        <div class="c4">
-          <label>Entry</label>
-          <input id="entry" inputmode="decimal" placeholder="es. 2034.56" />
-        </div>
-        <div class="c4">
-          <label>Stop</label>
-          <input id="stop" inputmode="decimal" placeholder="es. 2031.89" />
-        </div>
-        <div class="c12">
-          <div class="muted" id="tradeInfo">—</div>
-        </div>
-        <div class="c12">
-          <button class="btn btnPrimary" id="calcBtn" type="button">Calcola</button>
-        </div>
-      </div>
-    </div>
+<h1>Lot Calculator PRO – Doppio Conto (MT4)</h1>
+<div class="sub">Stesso trade • due conti • due lotti separati</div>
 
-    <div class="card">
-      <h2>Conversioni (USD↔EUR e JPY→USD/EUR)</h2>
-      <div class="muted" style="margin-bottom:10px">
-        Per i <b>JPY pairs</b> serve <b>USD→JPY</b>. Per conti <b>EUR</b> serve <b>USD→EUR</b>.
-        Se sei online puoi aggiornare automatico. Se sei offline inserisci a mano.
-      </div>
+<!-- TRADE COMUNE -->
+<div class="card">
+<h2>Trade (comune)</h2>
+<div class="row two">
+<div>
+<label>Pair</label>
+<select id="pair">
+<option>XAUUSD</option>
+<option>USDJPY</option>
+<option>GBPJPY</option>
+</select>
+</div>
+<div>
+<label>Risk %</label>
+<input id="risk" value="1">
+</div>
+</div>
 
-      <div class="row">
-        <div class="c3">
-          <label>USD → JPY</label>
-          <input id="usdJpy" inputmode="decimal" placeholder="es. 154.31" />
-        </div>
-        <div class="c3">
-          <label>USD → EUR</label>
-          <input id="usdEur" inputmode="decimal" placeholder="es. 0.84" />
-        </div>
-        <div class="c3">
-          <label>Ultimo aggiornamento</label>
-          <input id="ratesTs" disabled />
-        </div>
-        <div class="c3">
-          <label>&nbsp;</label>
-          <button class="btn btnGhost" id="fetchRatesBtn" type="button">Aggiorna tassi (online)</button>
-        </div>
-        <div class="c12 muted" id="ratesNote">—</div>
-      </div>
-    </div>
+<div class="row two">
+<div>
+<label>Entry</label>
+<input id="entry">
+</div>
+<div>
+<label>Stop</label>
+<input id="stop">
+</div>
+</div>
+</div>
 
-    <div class="card">
-      <div class="flex">
-        <h2>Conti (illimitati)</h2>
-        <div class="flex">
-          <button class="btn btnGhost" id="addAccBtn" type="button">+ Aggiungi conto</button>
-          <button class="btn btnDanger" id="resetBtn" type="button">Reset</button>
-        </div>
-      </div>
+<!-- CONTO A -->
+<div class="card">
+<h2>Conto A</h2>
+<div class="row two">
+<div>
+<label>Balance A</label>
+<input id="balA" value="150">
+</div>
+<div>
+<label>Valuta A</label>
+<select id="ccyA">
+<option>EUR</option>
+<option>USD</option>
+</select>
+</div>
+</div>
 
-      <div style="overflow:auto">
-        <table>
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Balance</th>
-              <th>Valuta</th>
-              <th>Risk %</th>
-              <th>Lot step</th>
-              <th>Lots</th>
-              <th>Rischio</th>
-              <th>Perdita/1.0 lot</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody id="accTbody"></tbody>
-        </table>
-      </div>
+<div class="result">
+<label>Lotto Conto A</label>
+<input id="lotA" readonly value="—">
+</div>
+</div>
 
-      <div class="muted" id="footerInfo" style="margin-top:12px">—</div>
-      <div class="muted" style="margin-top:6px">
-        <span class="ok">✓</span> XAUUSD: contract 100 oz (MT4 tipico) •
-        <span class="ok">✓</span> JPY pairs: contract 100,000 •
-        <span class="warn">⚠</span> Se il tuo broker usa XAU con contract diverso, dimmelo e lo rendiamo selezionabile.
-      </div>
-    </div>
-  </div>
+<!-- CONTO B -->
+<div class="card">
+<h2>Conto B</h2>
+<div class="row two">
+<div>
+<label>Balance B</label>
+<input id="balB" value="300">
+</div>
+<div>
+<label>Valuta B</label>
+<select id="ccyB">
+<option>EUR</option>
+<option>USD</option>
+</select>
+</div>
+</div>
+
+<div class="result">
+<label>Lotto Conto B</label>
+<input id="lotB" readonly value="—">
+</div>
+</div>
+
+<button onclick="calc()">Calcola</button>
+
+</div>
 
 <script>
-  // -----------------------------
-  // Config MT4 (preciso per i tuoi simboli)
-  // -----------------------------
-  const INSTRUMENTS = {
-    XAUUSD: { quote: "USD", contractSize: 100, lossInQuotePerLot: (dPrice)=> dPrice * 100 },
-    USDJPY: { quote: "JPY", contractSize: 100000, lossInQuotePerLot: (dPrice)=> dPrice * 100000 },
-    GBPJPY: { quote: "JPY", contractSize: 100000, lossInQuotePerLot: (dPrice)=> dPrice * 100000 },
-  };
+function n(v){return Number(String(v).replace(",","."))}
+function calcLot(balance,risk,entry,stop){
+ const dist=Math.abs(entry-stop)
+ const pipSize=0.01
+ const pips=dist/pipSize
+ const pipVal=1 // XAUUSD 1$ per 0.01 per lot
+ return (balance*(risk/100))/(pips*pipVal)
+}
 
-  const $ = (id) => document.getElementById(id);
+function calc(){
+ const entry=n(entryEl.value)
+ const stop=n(stopEl.value)
+ const risk=n(riskEl.value)
 
-  function safeUUID(){
-    if (window.crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
-    return "id-" + Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
-  }
+ const lotA=calcLot(n(balA.value),risk,entry,stop)
+ const lotB=calcLot(n(balB.value),risk,entry,stop)
 
-  const fmt = (n, digits=2) => {
-    if (!isFinite(n)) return "—";
-    return n.toLocaleString("it-IT", { minimumFractionDigits: 0, maximumFractionDigits: digits });
-  };
+ lotAEl.value=lotA.toFixed(2)
+ lotBEl.value=lotB.toFixed(2)
+}
 
-  // ✅ PARSER MANIACALE: gestisce 0.84073 / 0,84073 / 2.671,6 / 2,671.6 / 2.671.6 ecc.
-  function parseNum(v) {
-    if (v == null) return NaN;
-    let s = String(v).trim();
-    if (!s) return NaN;
-
-    // tieni solo cifre, separatori e segno
-    s = s.replace(/[^\d.,\-]/g, "");
-
-    const lastDot = s.lastIndexOf(".");
-    const lastComma = s.lastIndexOf(",");
-
-    // Nessun separatore
-    if (lastDot === -1 && lastComma === -1) return Number(s);
-
-    // Se c'è sia . che , -> ultimo tra i due è il decimale
-    if (lastDot !== -1 && lastComma !== -1) {
-      const decPos = Math.max(lastDot, lastComma);
-      const decChar = s[decPos];
-      const intPart = s.slice(0, decPos).replace(/[.,]/g, "");
-      const decPart = s.slice(decPos + 1).replace(/[.,]/g, "");
-      return Number(intPart + "." + decPart);
-    }
-
-    // Solo uno dei due: se appare più volte, l'ultimo è il decimale, gli altri sono separatori
-    const sep = (lastDot !== -1) ? "." : ",";
-    const parts = s.split(sep);
-
-    if (parts.length === 2) {
-      // singolo separatore -> è decimale (es. 154.31 o 154,31)
-      const intPart = parts[0].replace(/[^\d\-]/g, "");
-      const decPart = parts[1].replace(/[^\d]/g, "");
-      return Number(intPart + "." + decPart);
-    }
-
-    // più separatori -> ultimo è decimale
-    const decPart = parts.pop().replace(/[^\d]/g, "");
-    const intPart = parts.join("").replace(/[^\d\-]/g, "");
-    return Number(intPart + "." + decPart);
-  }
-
-  const roundDownToStep = (value, step) => {
-    const s = Number(step);
-    if (!isFinite(value) || !isFinite(s) || s <= 0) return 0;
-    return Math.floor(value / s) * s;
-  };
-
-  const nowIso = () => new Date().toISOString().replace("T"," ").slice(0,19);
-
-  // -----------------------------
-  // State
-  // -----------------------------
-  const STORAGE_KEY = "lotcalc_pro_mt4_v4_fixed_parser";
-  const loadState = () => {
-    try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); }
-    catch { return null; }
-  };
-  const saveState = () => localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-
-  const state = loadState() ?? {
-    trade: { symbol: "XAUUSD", entry: "", stop: "" },
-    rates: { usdJpy: "", usdEur: "", ts: "" },
-    accounts: [
-      { id: safeUUID(), name: "Challenge", balance: "100000", currency: "USD", riskPct: "0.5", lotStep: "0.01" },
-      { id: safeUUID(), name: "Funded", balance: "6000", currency: "USD", riskPct: "0.5", lotStep: "0.01" },
-    ]
-  };
-
-  function getRates() {
-    const usdJpy = parseNum(state.rates.usdJpy);
-    const usdEur = parseNum(state.rates.usdEur);
-    return { usdJpy, usdEur };
-  }
-
-  function convertQuoteToAccount(amountInQuote, quoteCcy, accountCcy) {
-    if (quoteCcy === accountCcy) return amountInQuote;
-
-    const { usdJpy, usdEur } = getRates();
-
-    if (quoteCcy === "USD" && accountCcy === "EUR") {
-      if (!isFinite(usdEur) || usdEur <= 0) return NaN;
-      return amountInQuote * usdEur;
-    }
-
-    if (quoteCcy === "JPY" && accountCcy === "USD") {
-      if (!isFinite(usdJpy) || usdJpy <= 0) return NaN;
-      return amountInQuote / usdJpy;
-    }
-
-    if (quoteCcy === "JPY" && accountCcy === "EUR") {
-      if (!isFinite(usdJpy) || usdJpy <= 0) return NaN;
-      if (!isFinite(usdEur) || usdEur <= 0) return NaN;
-      return amountInQuote * (usdEur / usdJpy);
-    }
-
-    return NaN;
-  }
-
-  function lossPerLotInAccount(symbol, entry, stop, accountCcy) {
-    const cfg = INSTRUMENTS[symbol];
-    if (!cfg) return NaN;
-
-    const dPrice = Math.abs(entry - stop);
-    if (!isFinite(dPrice) || dPrice <= 0) return NaN;
-
-    const lossInQuote = cfg.lossInQuotePerLot(dPrice);
-    return convertQuoteToAccount(lossInQuote, cfg.quote, accountCcy);
-  }
-
-  function calculateForAccount(acc) {
-    const symbol = state.trade.symbol;
-    const entry = parseNum(state.trade.entry);
-    const stop  = parseNum(state.trade.stop);
-
-    const balance = parseNum(acc.balance ?? "");
-    const riskPct = parseNum(acc.riskPct ?? "");
-    const lotStep = parseNum(acc.lotStep ?? "0.01");
-
-    if (![entry, stop, balance, riskPct, lotStep].every(n => isFinite(n))) {
-      return { lotsText: "—", riskText: "—", perLotText: "—" };
-    }
-    if (balance <= 0 || riskPct <= 0 || lotStep <= 0) {
-      return { lotsText: "—", riskText: "—", perLotText: "—" };
-    }
-
-    const riskMoney = balance * (riskPct / 100);
-    const perLot = lossPerLotInAccount(symbol, entry, stop, acc.currency);
-
-    if (!isFinite(perLot) || perLot <= 0) {
-      return {
-        lotsText: "Tassi?",
-        riskText: fmt(riskMoney, 2) + " " + acc.currency,
-        perLotText: "—"
-      };
-    }
-
-    const lotsRaw = riskMoney / perLot;
-    const lots = roundDownToStep(lotsRaw, lotStep);
-
-    return {
-      lotsText: fmt(lots, 4),
-      riskText: fmt(riskMoney, 2) + " " + acc.currency,
-      perLotText: fmt(perLot, 2) + " " + acc.currency
-    };
-  }
-
-  function renderTrade() {
-    $("symbol").value = state.trade.symbol;
-    $("entry").value = state.trade.entry;
-    $("stop").value = state.trade.stop;
-
-    const cfg = INSTRUMENTS[state.trade.symbol];
-    const entry = parseNum(state.trade.entry);
-    const stop  = parseNum(state.trade.stop);
-    const dPrice = (isFinite(entry) && isFinite(stop)) ? Math.abs(entry - stop) : NaN;
-
-    $("tradeInfo").textContent = cfg
-      ? `Quote: ${cfg.quote} • Contract size MT4: ${cfg.contractSize} • Distanza Entry-Stop (price): ${isFinite(dPrice) ? fmt(dPrice, 6) : "—"}`
-      : "—";
-  }
-
-  function renderRates() {
-    $("usdJpy").value = state.rates.usdJpy;
-    $("usdEur").value = state.rates.usdEur;
-    $("ratesTs").value = state.rates.ts || "";
-    const { usdJpy, usdEur } = getRates();
-
-    const parts = [];
-    if (isFinite(usdJpy) && usdJpy > 0) parts.push(`USD→JPY=${fmt(usdJpy, 5)}`);
-    if (isFinite(usdEur) && usdEur > 0) parts.push(`USD→EUR=${fmt(usdEur, 5)}`);
-    $("ratesNote").textContent = parts.length ? `Tassi attivi: ${parts.join(" • ")}` : "Inserisci i tassi o premi “Aggiorna tassi (online)”.";
-  }
-
-  function renderAccounts(results = {}) {
-    const tbody = $("accTbody");
-    tbody.innerHTML = "";
-
-    state.accounts.forEach((acc) => {
-      const res = results[acc.id] ?? {};
-      const tr = document.createElement("tr");
-
-      tr.innerHTML = `
-        <td style="min-width:140px"><input data-k="name" data-id="${acc.id}" value="${acc.name ?? ""}" /></td>
-        <td style="min-width:120px"><input data-k="balance" data-id="${acc.id}" value="${acc.balance ?? ""}" inputmode="decimal" placeholder="es. 100000" /></td>
-        <td style="min-width:90px">
-          <select data-k="currency" data-id="${acc.id}">
-            <option value="USD" ${acc.currency==="USD"?"selected":""}>USD</option>
-            <option value="EUR" ${acc.currency==="EUR"?"selected":""}>EUR</option>
-          </select>
-        </td>
-        <td style="min-width:90px"><input data-k="riskPct" data-id="${acc.id}" value="${acc.riskPct ?? ""}" inputmode="decimal" placeholder="es. 0.5" /></td>
-        <td style="min-width:90px"><input data-k="lotStep" data-id="${acc.id}" value="${acc.lotStep ?? "0.01"}" inputmode="decimal" placeholder="0.01" /></td>
-        <td class="out" style="min-width:90px">${res.lotsText ?? "—"}</td>
-        <td class="out" style="min-width:120px">${res.riskText ?? "—"}</td>
-        <td class="out" style="min-width:150px">${res.perLotText ?? "—"}</td>
-        <td style="min-width:70px"><button class="btn btnDanger" data-del="${acc.id}" type="button">X</button></td>
-      `;
-
-      tbody.appendChild(tr);
-    });
-
-    tbody.querySelectorAll("input,select").forEach(el => {
-      el.addEventListener("input", (e) => {
-        const id = e.target.dataset.id;
-        const k = e.target.dataset.k;
-        const acc = state.accounts.find(a => a.id === id);
-        if (!acc) return;
-        acc[k] = e.target.value;
-        saveState();
-      });
-      el.addEventListener("change", (e) => {
-        const id = e.target.dataset.id;
-        const k = e.target.dataset.k;
-        const acc = state.accounts.find(a => a.id === id);
-        if (!acc) return;
-        acc[k] = e.target.value;
-        saveState();
-      });
-    });
-
-    tbody.querySelectorAll("button[data-del]").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const id = btn.getAttribute("data-del");
-        state.accounts = state.accounts.filter(a => a.id !== id);
-        saveState();
-        calculateAndRender();
-      });
-    });
-  }
-
-  function setStatusPill() {
-    const on = navigator.onLine;
-    $("statusPill").textContent = on ? "ONLINE" : "OFFLINE";
-    $("statusPill").style.borderColor = on ? "#14532d" : "#7f1d1d";
-    $("statusPill").style.background = on ? "#052e16" : "#450a0a";
-    $("statusPill").style.color = on ? "#86efac" : "#fca5a5";
-  }
-
-  function calculateAndRender() {
-    renderTrade();
-    renderRates();
-    setStatusPill();
-
-    const results = {};
-    state.accounts.forEach(acc => results[acc.id] = calculateForAccount(acc));
-    renderAccounts(results);
-
-    const symbol = state.trade.symbol;
-    const entry = parseNum(state.trade.entry);
-    const stop  = parseNum(state.trade.stop);
-    const dPrice = (isFinite(entry) && isFinite(stop)) ? Math.abs(entry - stop) : NaN;
-
-    $("footerInfo").textContent = isFinite(dPrice)
-      ? `Distanza Entry-Stop (price): ${fmt(dPrice, 6)} • Simbolo: ${symbol}`
-      : "Inserisci Entry e Stop, poi premi Calcola.";
-  }
-
-  // -----------------------------
-  // Rates fetch (online)
-  // -----------------------------
-  async function fetchRatesOnline() {
-    try {
-      const res = await fetch("https://open.er-api.com/v6/latest/USD", { cache: "no-store" });
-      if (!res.ok) throw new Error("http " + res.status);
-      const data = await res.json();
-      const jpy = data?.rates?.JPY;
-      const eur = data?.rates?.EUR;
-      if (!isFinite(jpy) || !isFinite(eur)) throw new Error("rates missing");
-
-      state.rates.usdJpy = String(jpy);
-      state.rates.usdEur = String(eur);
-      state.rates.ts = nowIso();
-      saveState();
-      calculateAndRender();
-    } catch (e) {
-      alert("Impossibile aggiornare online. Inserisci i tassi a mano (USD→JPY e USD→EUR).");
-    }
-  }
-
-  function bind() {
-    $("symbol").addEventListener("change", (e) => {
-      state.trade.symbol = e.target.value;
-      saveState();
-      calculateAndRender();
-    });
-    $("entry").addEventListener("input", (e) => { state.trade.entry = e.target.value; saveState(); });
-    $("stop").addEventListener("input", (e) => { state.trade.stop = e.target.value; saveState(); });
-
-    $("usdJpy").addEventListener("input", (e) => { state.rates.usdJpy = e.target.value; state.rates.ts = nowIso(); saveState(); });
-    $("usdEur").addEventListener("input", (e) => { state.rates.usdEur = e.target.value; state.rates.ts = nowIso(); saveState(); });
-
-    $("fetchRatesBtn").addEventListener("click", fetchRatesOnline);
-    $("calcBtn").addEventListener("click", calculateAndRender);
-
-    $("addAccBtn").addEventListener("click", () => {
-      state.accounts.push({
-        id: safeUUID(),
-        name: "Nuovo",
-        balance: "",
-        currency: "USD",
-        riskPct: "0.5",
-        lotStep: "0.01"
-      });
-      saveState();
-      calculateAndRender();
-    });
-
-    $("resetBtn").addEventListener("click", () => {
-      localStorage.removeItem(STORAGE_KEY);
-      location.reload();
-    });
-
-    window.addEventListener("online", setStatusPill);
-    window.addEventListener("offline", setStatusPill);
-  }
-
-  function init() {
-    renderTrade();
-    renderRates();
-    renderAccounts();
-    bind();
-    setStatusPill();
-
-    const { usdJpy, usdEur } = getRates();
-    if (navigator.onLine && (!isFinite(usdJpy) || usdJpy <= 0 || !isFinite(usdEur) || usdEur <= 0)) {
-      fetchRatesOnline();
-    }
-    calculateAndRender();
-  }
-  init();
+const entryEl=document.getElementById("entry")
+const stopEl=document.getElementById("stop")
+const riskEl=document.getElementById("risk")
+const balA=document.getElementById("balA")
+const balB=document.getElementById("balB")
+const lotAEl=document.getElementById("lotA")
+const lotBEl=document.getElementById("lotB")
 </script>
+
 </body>
 </html>
