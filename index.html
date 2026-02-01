@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lot Calculator PRO – Doppio Conto (MT4)</title>
+<title>Lot Calculator PRO – Dual Account (MT4)</title>
 
 <style>
 body{
@@ -93,6 +93,7 @@ button{
   color:#fecaca;
   font-size:13px;
   display:none;
+  line-height:1.35;
 }
 
 .small{
@@ -106,9 +107,9 @@ button{
 <body>
 <div class="wrap">
 
-  <!-- HEADER PRINCIPALE -->
+  <!-- MAIN HEADER -->
   <div class="header">
-    <h1>Lot Calculator PRO – Doppio Conto (MT4)</h1>
+    <h1>Lot Calculator PRO – Dual Account (MT4)</h1>
     <div class="subtitle">
       Precision trading tools – Produced by Alessandro Fillini
     </div>
@@ -117,9 +118,10 @@ button{
     </div>
   </div>
 
-  <!-- TRADE COMUNE -->
+  <!-- SHARED TRADE -->
   <div class="card">
     <h2>Trade (shared)</h2>
+
     <div class="row two">
       <div>
         <label>Symbol</label>
@@ -138,24 +140,25 @@ button{
     <div class="row two">
       <div>
         <label>Entry</label>
-        <input id="entry">
+        <input id="entry" inputmode="decimal" placeholder="e.g. 4748.137">
       </div>
       <div>
         <label>Stop</label>
-        <input id="stop">
+        <input id="stop" inputmode="decimal" placeholder="e.g. 4664.836">
       </div>
     </div>
 
     <div class="small" id="distanceInfo">—</div>
   </div>
 
-  <!-- CONTO A -->
+  <!-- ACCOUNT A -->
   <div class="card">
     <h2>Account A</h2>
+
     <div class="row two">
       <div>
         <label>Balance A</label>
-        <input id="balA" value="100000">
+        <input id="balA" value="100000" inputmode="decimal">
       </div>
       <div>
         <label>Currency</label>
@@ -170,16 +173,18 @@ button{
       <label>Lots</label>
       <input id="lotA" readonly value="—">
     </div>
+
     <div class="warning" id="warnA"></div>
   </div>
 
-  <!-- CONTO B -->
+  <!-- ACCOUNT B -->
   <div class="card">
     <h2>Account B</h2>
+
     <div class="row two">
       <div>
         <label>Balance B</label>
-        <input id="balB" value="5815.55">
+        <input id="balB" value="6000" inputmode="decimal">
       </div>
       <div>
         <label>Currency</label>
@@ -194,31 +199,52 @@ button{
       <label>Lots</label>
       <input id="lotB" readonly value="—">
     </div>
+
     <div class="warning" id="warnB"></div>
   </div>
 
-  <button onclick="calculate()">Calcola</button>
+  <button onclick="calculate()">Calculate</button>
 
 </div>
 
 <script>
-function n(v){return Number(String(v).replace(",","."))}
+function n(v){ return Number(String(v).trim().replace(",", ".")); }
 
-const MIN_LOT = 0.01;
+// Broker constraints (confirmed by your MT4: min lot 0.01)
+const MIN_LOT  = 0.01;
 const LOT_STEP = 0.01;
-const TICK_SIZE = 0.01;
-const TICK_VALUE = 1; // XAUUSD standard MT4
 
-function calcLot(balance,risk,entry,stop){
-  const dist = Math.abs(entry-stop);
+// XAUUSD (MT4 typical, as per your Symbol Specs screenshot)
+// Tick size 0.01, tick value $1.00 per 1.00 lot
+const TICK_SIZE  = 0.01;
+const TICK_VALUE = 1.00;
+
+// Math: raw lot from balance*risk% and entry-stop distance
+function calcRawLot(balance, riskPct, entry, stop){
+  const dist = Math.abs(entry - stop);
   const ticks = dist / TICK_SIZE;
-  const riskMoney = balance * (risk/100);
+  const riskMoney = balance * (riskPct / 100);
   return riskMoney / (ticks * TICK_VALUE);
 }
 
+// Conservative formatting (round down to step; if below minimum -> 0.00)
 function formatLot(raw){
-  if(raw < MIN_LOT) return 0;
+  if (raw < MIN_LOT) return 0;
   return Math.floor(raw / LOT_STEP) * LOT_STEP;
+}
+
+// If user chooses to trade MIN_LOT anyway, estimate the actual risk
+function riskIfForcedLot(balance, entry, stop, forcedLot){
+  const dist = Math.abs(entry - stop);
+  const ticks = dist / TICK_SIZE;
+  const riskUsd = ticks * TICK_VALUE * forcedLot; // in USD for XAUUSD tick value spec
+  const riskPct = (riskUsd / balance) * 100;
+  return { riskUsd, riskPct };
+}
+
+function setWarning(el, show, text){
+  el.style.display = show ? "block" : "none";
+  el.textContent = show ? text : "";
 }
 
 function calculate(){
@@ -226,35 +252,57 @@ function calculate(){
   const stop  = n(document.getElementById("stop").value);
   const risk  = n(document.getElementById("risk").value);
 
-  if(!entry || !stop || entry===stop) return;
+  if(!isFinite(entry) || !isFinite(stop) || !isFinite(risk) || entry <= 0 || stop <= 0 || risk <= 0 || entry === stop){
+    return;
+  }
 
-  const dist = Math.abs(entry-stop);
+  const dist = Math.abs(entry - stop);
   document.getElementById("distanceInfo").textContent =
     `Entry–Stop distance: ${dist.toFixed(3)} (price)`;
 
-  // Account A
-  const rawA = calcLot(n(balA.value),risk,entry,stop);
+  // ---- Account A
+  const balAVal = n(balA.value);
+  const rawA = calcRawLot(balAVal, risk, entry, stop);
   const lotA = formatLot(rawA);
   lotAEl.value = lotA.toFixed(2);
-  warnA.style.display = rawA < MIN_LOT ? "block":"none";
-  warnA.textContent =
-    `⚠️ Below broker minimum (0.01). Calculated: ${rawA.toFixed(3)}`;
 
-  // Account B
-  const rawB = calcLot(n(balB.value),risk,entry,stop);
+  if (rawA < MIN_LOT) {
+    const forced = riskIfForcedLot(balAVal, entry, stop, MIN_LOT);
+    setWarning(
+      warnA,
+      true,
+      `⚠️ Below broker minimum (${MIN_LOT.toFixed(2)}). Calculated: ${rawA.toFixed(3)}\n` +
+      `If you trade ${MIN_LOT.toFixed(2)} lots, estimated risk: ${forced.riskUsd.toFixed(2)} USD (${forced.riskPct.toFixed(2)}%)`
+    );
+  } else {
+    setWarning(warnA, false, "");
+  }
+
+  // ---- Account B
+  const balBVal = n(balB.value);
+  const rawB = calcRawLot(balBVal, risk, entry, stop);
   const lotB = formatLot(rawB);
   lotBEl.value = lotB.toFixed(2);
-  warnB.style.display = rawB < MIN_LOT ? "block":"none";
-  warnB.textContent =
-    `⚠️ Below broker minimum (0.01). Calculated: ${rawB.toFixed(3)}`;
+
+  if (rawB < MIN_LOT) {
+    const forced = riskIfForcedLot(balBVal, entry, stop, MIN_LOT);
+    setWarning(
+      warnB,
+      true,
+      `⚠️ Below broker minimum (${MIN_LOT.toFixed(2)}). Calculated: ${rawB.toFixed(3)}\n` +
+      `If you trade ${MIN_LOT.toFixed(2)} lots, estimated risk: ${forced.riskUsd.toFixed(2)} USD (${forced.riskPct.toFixed(2)}%)`
+    );
+  } else {
+    setWarning(warnB, false, "");
+  }
 }
 
-const balA=document.getElementById("balA");
-const balB=document.getElementById("balB");
-const lotAEl=document.getElementById("lotA");
-const lotBEl=document.getElementById("lotB");
-const warnA=document.getElementById("warnA");
-const warnB=document.getElementById("warnB");
+const balA  = document.getElementById("balA");
+const balB  = document.getElementById("balB");
+const lotAEl = document.getElementById("lotA");
+const lotBEl = document.getElementById("lotB");
+const warnA  = document.getElementById("warnA");
+const warnB  = document.getElementById("warnB");
 </script>
 
 </body>
