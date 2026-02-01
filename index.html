@@ -1,141 +1,236 @@
 <!doctype html>
-<html lang="it">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lot Calculator PRO – Multi Account (MT4)</title>
+<title>Lot Calculator PRO (MT4)</title>
 
 <style>
-body{margin:0;font-family:system-ui;background:#0b1220;color:#e5e7eb}
-.wrap{max-width:800px;margin:auto;padding:16px}
-.card{background:#111b2e;border-radius:16px;padding:14px;margin-bottom:14px}
-h1,h2{margin:0 0 10px}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+  background:#0b1220;
+  color:#e5e7eb;
+}
+.wrap{max-width:820px;margin:auto;padding:18px}
+.card{
+  background:#111b2e;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:16px;
+}
+h1{margin:0;font-size:22px}
+.subtitle{
+  margin-top:6px;
+  font-size:13px;
+  color:#94a3b8;
+}
+h2{margin:0 0 10px;font-size:16px}
 label{font-size:12px;color:#94a3b8}
-input,select{width:100%;padding:12px;border-radius:12px;border:1px solid #1f2a44;background:#0f172a;color:#fff;font-size:16px}
-.row{display:grid;gap:10px}
-@media(min-width:600px){.two{grid-template-columns:1fr 1fr}}
-button{width:100%;padding:14px;border-radius:14px;border:0;background:#2563eb;color:#fff;font-weight:800;font-size:16px}
-.result{margin-top:10px;padding:12px;border-radius:12px;background:#052e16;border:1px solid #22c55e}
-.result input{background:#022c22;border-color:#22c55e;font-size:20px;text-align:center;font-weight:900}
-.sub{font-size:12px;color:#94a3b8}
+input,select{
+  width:100%;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid #1f2a44;
+  background:#0f172a;
+  color:#fff;
+  font-size:16px;
+}
+.row{display:grid;gap:12px}
+@media(min-width:640px){.two{grid-template-columns:1fr 1fr}}
+button{
+  width:100%;
+  padding:15px;
+  border-radius:16px;
+  border:0;
+  background:#2563eb;
+  color:#fff;
+  font-weight:800;
+  font-size:16px;
+  cursor:pointer;
+}
+.result{
+  margin-top:10px;
+  padding:12px;
+  border-radius:14px;
+  background:#052e16;
+  border:1px solid #22c55e;
+}
+.result input{
+  background:#022c22;
+  border-color:#22c55e;
+  font-size:20px;
+  font-weight:900;
+  text-align:center;
+}
+.warning{
+  margin-top:8px;
+  padding:10px;
+  border-radius:12px;
+  background:#3b0a0a;
+  border:1px solid #ef4444;
+  color:#fecaca;
+  font-size:13px;
+  display:none;
+}
+.small{
+  font-size:12px;
+  color:#94a3b8;
+  margin-top:6px;
+}
 </style>
 </head>
 
 <body>
 <div class="wrap">
 
-<h1>Lot Calculator PRO – Doppio Conto (MT4)</h1>
-<div class="sub">Stesso trade • due conti • due lotti separati</div>
+  <!-- HEADER -->
+  <div class="card">
+    <h1>Lot Calculator PRO (MT4)</h1>
+    <div class="subtitle">
+      Precision trading tools – Produced by Alessandro Fillini
+    </div>
+  </div>
 
-<!-- TRADE COMUNE -->
-<div class="card">
-<h2>Trade (comune)</h2>
-<div class="row two">
-<div>
-<label>Pair</label>
-<select id="pair">
-<option>XAUUSD</option>
-<option>USDJPY</option>
-<option>GBPJPY</option>
-</select>
-</div>
-<div>
-<label>Risk %</label>
-<input id="risk" value="1">
-</div>
-</div>
+  <!-- TRADE COMUNE -->
+  <div class="card">
+    <h2>Trade (shared)</h2>
+    <div class="row two">
+      <div>
+        <label>Symbol</label>
+        <select id="pair">
+          <option>XAUUSD</option>
+          <option>USDJPY</option>
+          <option>GBPJPY</option>
+        </select>
+      </div>
+      <div>
+        <label>Risk %</label>
+        <input id="risk" value="1">
+      </div>
+    </div>
 
-<div class="row two">
-<div>
-<label>Entry</label>
-<input id="entry">
-</div>
-<div>
-<label>Stop</label>
-<input id="stop">
-</div>
-</div>
-</div>
+    <div class="row two">
+      <div>
+        <label>Entry</label>
+        <input id="entry">
+      </div>
+      <div>
+        <label>Stop</label>
+        <input id="stop">
+      </div>
+    </div>
 
-<!-- CONTO A -->
-<div class="card">
-<h2>Conto A</h2>
-<div class="row two">
-<div>
-<label>Balance A</label>
-<input id="balA" value="150">
-</div>
-<div>
-<label>Valuta A</label>
-<select id="ccyA">
-<option>EUR</option>
-<option>USD</option>
-</select>
-</div>
-</div>
+    <div class="small" id="distanceInfo">—</div>
+  </div>
 
-<div class="result">
-<label>Lotto Conto A</label>
-<input id="lotA" readonly value="—">
-</div>
-</div>
+  <!-- CONTO A -->
+  <div class="card">
+    <h2>Account A (Challenge)</h2>
+    <div class="row two">
+      <div>
+        <label>Balance</label>
+        <input id="balA" value="1000">
+      </div>
+      <div>
+        <label>Currency</label>
+        <select id="ccyA">
+          <option>USD</option>
+          <option>EUR</option>
+        </select>
+      </div>
+    </div>
 
-<!-- CONTO B -->
-<div class="card">
-<h2>Conto B</h2>
-<div class="row two">
-<div>
-<label>Balance B</label>
-<input id="balB" value="300">
-</div>
-<div>
-<label>Valuta B</label>
-<select id="ccyB">
-<option>EUR</option>
-<option>USD</option>
-</select>
-</div>
-</div>
+    <div class="result">
+      <label>Lots</label>
+      <input id="lotA" readonly value="—">
+    </div>
+    <div class="warning" id="warnA"></div>
+  </div>
 
-<div class="result">
-<label>Lotto Conto B</label>
-<input id="lotB" readonly value="—">
-</div>
-</div>
+  <!-- CONTO B -->
+  <div class="card">
+    <h2>Account B (Funded)</h2>
+    <div class="row two">
+      <div>
+        <label>Balance</label>
+        <input id="balB" value="60">
+      </div>
+      <div>
+        <label>Currency</label>
+        <select id="ccyB">
+          <option>USD</option>
+          <option>EUR</option>
+        </select>
+      </div>
+    </div>
 
-<button onclick="calc()">Calcola</button>
+    <div class="result">
+      <label>Lots</label>
+      <input id="lotB" readonly value="—">
+    </div>
+    <div class="warning" id="warnB"></div>
+  </div>
+
+  <button onclick="calculate()">Calculate</button>
 
 </div>
 
 <script>
 function n(v){return Number(String(v).replace(",","."))}
+
+const MIN_LOT = 0.01;
+const LOT_STEP = 0.01;
+const TICK_SIZE = 0.01;
+const TICK_VALUE = 1; // XAUUSD standard MT4
+
 function calcLot(balance,risk,entry,stop){
- const dist=Math.abs(entry-stop)
- const pipSize=0.01
- const pips=dist/pipSize
- const pipVal=1 // XAUUSD 1$ per 0.01 per lot
- return (balance*(risk/100))/(pips*pipVal)
+  const dist = Math.abs(entry-stop);
+  const ticks = dist / TICK_SIZE;
+  const riskMoney = balance * (risk/100);
+  const rawLot = riskMoney / (ticks * TICK_VALUE);
+  return rawLot;
 }
 
-function calc(){
- const entry=n(entryEl.value)
- const stop=n(stopEl.value)
- const risk=n(riskEl.value)
-
- const lotA=calcLot(n(balA.value),risk,entry,stop)
- const lotB=calcLot(n(balB.value),risk,entry,stop)
-
- lotAEl.value=lotA.toFixed(2)
- lotBEl.value=lotB.toFixed(2)
+function formatLot(raw){
+  if(raw < MIN_LOT) return 0;
+  return Math.floor(raw / LOT_STEP) * LOT_STEP;
 }
 
-const entryEl=document.getElementById("entry")
-const stopEl=document.getElementById("stop")
-const riskEl=document.getElementById("risk")
-const balA=document.getElementById("balA")
-const balB=document.getElementById("balB")
-const lotAEl=document.getElementById("lotA")
-const lotBEl=document.getElementById("lotB")
+function calculate(){
+  const entry = n(document.getElementById("entry").value);
+  const stop  = n(document.getElementById("stop").value);
+  const risk  = n(document.getElementById("risk").value);
+
+  if(!entry || !stop || entry===stop) return;
+
+  const dist = Math.abs(entry-stop);
+  document.getElementById("distanceInfo").textContent =
+    `Entry–Stop distance: ${dist.toFixed(3)} (price)`;
+
+  // Account A
+  const rawA = calcLot(n(balA.value),risk,entry,stop);
+  const lotA = formatLot(rawA);
+  lotAEl.value = lotA.toFixed(2);
+  warnA.style.display = rawA < MIN_LOT ? "block":"none";
+  warnA.textContent =
+    `⚠️ Below broker minimum (0.01). Calculated: ${rawA.toFixed(3)}`;
+
+  // Account B
+  const rawB = calcLot(n(balB.value),risk,entry,stop);
+  const lotB = formatLot(rawB);
+  lotBEl.value = lotB.toFixed(2);
+  warnB.style.display = rawB < MIN_LOT ? "block":"none";
+  warnB.textContent =
+    `⚠️ Below broker minimum (0.01). Calculated: ${rawB.toFixed(3)}`;
+}
+
+const balA=document.getElementById("balA");
+const balB=document.getElementById("balB");
+const lotAEl=document.getElementById("lotA");
+const lotBEl=document.getElementById("lotB");
+const warnA=document.getElementById("warnA");
+const warnB=document.getElementById("warnB");
 </script>
 
 </body>
