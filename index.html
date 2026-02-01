@@ -30,6 +30,14 @@
     .flex{display:flex;gap:10px;align-items:center;justify-content:space-between}
     .warn{color:#fde68a}
     .ok{color:#86efac}
+
+    /* FIX mobile: niente sovrapposizioni + niente zoom */
+    @media (max-width: 520px) {
+      .row { grid-template-columns: 1fr !important; }
+      .c3,.c4,.c6,.c12 { grid-column: span 12 !important; }
+      input,select { font-size:16px; }
+      button { width:100%; }
+    }
   </style>
 </head>
 <body>
@@ -82,11 +90,11 @@
       <div class="row">
         <div class="c3">
           <label>USD → JPY</label>
-          <input id="usdJpy" inputmode="decimal" placeholder="es. 148.35" />
+          <input id="usdJpy" inputmode="decimal" placeholder="es. 154.31" />
         </div>
         <div class="c3">
           <label>USD → EUR</label>
-          <input id="usdEur" inputmode="decimal" placeholder="es. 0.92" />
+          <input id="usdEur" inputmode="decimal" placeholder="es. 0.84" />
         </div>
         <div class="c3">
           <label>Ultimo aggiornamento</label>
@@ -142,16 +150,11 @@
   // Config MT4 (preciso per i tuoi simboli)
   // -----------------------------
   const INSTRUMENTS = {
-    // XAUUSD: contract size 100 oz -> 1.00 di prezzo = 100 USD per 1 lot
     XAUUSD: { quote: "USD", contractSize: 100, lossInQuotePerLot: (dPrice)=> dPrice * 100 },
-    // JPY pairs: contract size 100,000 base -> 1.00 di prezzo = 100,000 JPY per 1 lot
     USDJPY: { quote: "JPY", contractSize: 100000, lossInQuotePerLot: (dPrice)=> dPrice * 100000 },
     GBPJPY: { quote: "JPY", contractSize: 100000, lossInQuotePerLot: (dPrice)=> dPrice * 100000 },
   };
 
-  // -----------------------------
-  // Helpers
-  // -----------------------------
   const $ = (id) => document.getElementById(id);
 
   function safeUUID(){
@@ -161,15 +164,49 @@
 
   const fmt = (n, digits=2) => {
     if (!isFinite(n)) return "—";
-    return n.toLocaleString("it-IT", { maximumFractionDigits: digits });
+    return n.toLocaleString("it-IT", { minimumFractionDigits: 0, maximumFractionDigits: digits });
   };
 
-  const parseNum = (v) => {
-    if (typeof v !== "string") return NaN;
-    // supporta "2.671,6" e "2671.6"
-    const cleaned = v.trim().replace(/\./g, "").replace(",", ".");
-    return Number(cleaned);
-  };
+  // ✅ PARSER MANIACALE: gestisce 0.84073 / 0,84073 / 2.671,6 / 2,671.6 / 2.671.6 ecc.
+  function parseNum(v) {
+    if (v == null) return NaN;
+    let s = String(v).trim();
+    if (!s) return NaN;
+
+    // tieni solo cifre, separatori e segno
+    s = s.replace(/[^\d.,\-]/g, "");
+
+    const lastDot = s.lastIndexOf(".");
+    const lastComma = s.lastIndexOf(",");
+
+    // Nessun separatore
+    if (lastDot === -1 && lastComma === -1) return Number(s);
+
+    // Se c'è sia . che , -> ultimo tra i due è il decimale
+    if (lastDot !== -1 && lastComma !== -1) {
+      const decPos = Math.max(lastDot, lastComma);
+      const decChar = s[decPos];
+      const intPart = s.slice(0, decPos).replace(/[.,]/g, "");
+      const decPart = s.slice(decPos + 1).replace(/[.,]/g, "");
+      return Number(intPart + "." + decPart);
+    }
+
+    // Solo uno dei due: se appare più volte, l'ultimo è il decimale, gli altri sono separatori
+    const sep = (lastDot !== -1) ? "." : ",";
+    const parts = s.split(sep);
+
+    if (parts.length === 2) {
+      // singolo separatore -> è decimale (es. 154.31 o 154,31)
+      const intPart = parts[0].replace(/[^\d\-]/g, "");
+      const decPart = parts[1].replace(/[^\d]/g, "");
+      return Number(intPart + "." + decPart);
+    }
+
+    // più separatori -> ultimo è decimale
+    const decPart = parts.pop().replace(/[^\d]/g, "");
+    const intPart = parts.join("").replace(/[^\d\-]/g, "");
+    return Number(intPart + "." + decPart);
+  }
 
   const roundDownToStep = (value, step) => {
     const s = Number(step);
@@ -180,9 +217,9 @@
   const nowIso = () => new Date().toISOString().replace("T"," ").slice(0,19);
 
   // -----------------------------
-  // State (localStorage)
+  // State
   // -----------------------------
-  const STORAGE_KEY = "lotcalc_pro_mt4_v3_rates_erapi";
+  const STORAGE_KEY = "lotcalc_pro_mt4_v4_fixed_parser";
   const loadState = () => {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); }
     catch { return null; }
@@ -198,9 +235,6 @@
     ]
   };
 
-  // -----------------------------
-  // Conversioni coerenti (maniacali)
-  // -----------------------------
   function getRates() {
     const usdJpy = parseNum(state.rates.usdJpy);
     const usdEur = parseNum(state.rates.usdEur);
@@ -231,9 +265,6 @@
     return NaN;
   }
 
-  // -----------------------------
-  // Core calc
-  // -----------------------------
   function lossPerLotInAccount(symbol, entry, stop, accountCcy) {
     const cfg = INSTRUMENTS[symbol];
     if (!cfg) return NaN;
@@ -282,9 +313,6 @@
     };
   }
 
-  // -----------------------------
-  // UI rendering
-  // -----------------------------
   function renderTrade() {
     $("symbol").value = state.trade.symbol;
     $("entry").value = state.trade.entry;
@@ -397,12 +425,10 @@
   }
 
   // -----------------------------
-  // Rates fetch (online) - ER API
+  // Rates fetch (online)
   // -----------------------------
   async function fetchRatesOnline() {
     try {
-      // Endpoint semplice e stabile:
-      // Response: { result: "success", rates: { JPY: ..., EUR: ... }, time_last_update_utc: "...", ... }
       const res = await fetch("https://open.er-api.com/v6/latest/USD", { cache: "no-store" });
       if (!res.ok) throw new Error("http " + res.status);
       const data = await res.json();
@@ -420,9 +446,6 @@
     }
   }
 
-  // -----------------------------
-  // Events
-  // -----------------------------
   function bind() {
     $("symbol").addEventListener("change", (e) => {
       state.trade.symbol = e.target.value;
@@ -460,9 +483,6 @@
     window.addEventListener("offline", setStatusPill);
   }
 
-  // -----------------------------
-  // Init
-  // -----------------------------
   function init() {
     renderTrade();
     renderRates();
