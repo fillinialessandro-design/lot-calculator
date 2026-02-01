@@ -155,7 +155,6 @@
   const $ = (id) => document.getElementById(id);
 
   function safeUUID(){
-    // fallback per browser/contesti dove crypto.randomUUID non c'è
     if (window.crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
     return "id-" + Math.random().toString(16).slice(2) + "-" + Date.now().toString(16);
   }
@@ -183,7 +182,7 @@
   // -----------------------------
   // State (localStorage)
   // -----------------------------
-  const STORAGE_KEY = "lotcalc_pro_mt4_v2";
+  const STORAGE_KEY = "lotcalc_pro_mt4_v3_rates_erapi";
   const loadState = () => {
     try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "null"); }
     catch { return null; }
@@ -213,19 +212,16 @@
 
     const { usdJpy, usdEur } = getRates();
 
-    // USD -> EUR
     if (quoteCcy === "USD" && accountCcy === "EUR") {
       if (!isFinite(usdEur) || usdEur <= 0) return NaN;
       return amountInQuote * usdEur;
     }
 
-    // JPY -> USD (invert USD->JPY)
     if (quoteCcy === "JPY" && accountCcy === "USD") {
       if (!isFinite(usdJpy) || usdJpy <= 0) return NaN;
       return amountInQuote / usdJpy;
     }
 
-    // JPY -> EUR = (JPY->USD)*(USD->EUR) = amount * (usdEur/usdJpy)
     if (quoteCcy === "JPY" && accountCcy === "EUR") {
       if (!isFinite(usdJpy) || usdJpy <= 0) return NaN;
       if (!isFinite(usdEur) || usdEur <= 0) return NaN;
@@ -245,7 +241,7 @@
     const dPrice = Math.abs(entry - stop);
     if (!isFinite(dPrice) || dPrice <= 0) return NaN;
 
-    const lossInQuote = cfg.lossInQuotePerLot(dPrice); // USD o JPY
+    const lossInQuote = cfg.lossInQuotePerLot(dPrice);
     return convertQuoteToAccount(lossInQuote, cfg.quote, accountCcy);
   }
 
@@ -401,11 +397,13 @@
   }
 
   // -----------------------------
-  // Rates fetch (online)
+  // Rates fetch (online) - ER API
   // -----------------------------
   async function fetchRatesOnline() {
     try {
-      const res = await fetch("https://api.exchangerate.host/latest?base=USD&symbols=JPY,EUR", { cache: "no-store" });
+      // Endpoint semplice e stabile:
+      // Response: { result: "success", rates: { JPY: ..., EUR: ... }, time_last_update_utc: "...", ... }
+      const res = await fetch("https://open.er-api.com/v6/latest/USD", { cache: "no-store" });
       if (!res.ok) throw new Error("http " + res.status);
       const data = await res.json();
       const jpy = data?.rates?.JPY;
@@ -472,7 +470,6 @@
     bind();
     setStatusPill();
 
-    // Auto-fetch se online e tassi mancanti
     const { usdJpy, usdEur } = getRates();
     if (navigator.onLine && (!isFinite(usdJpy) || usdJpy <= 0 || !isFinite(usdEur) || usdEur <= 0)) {
       fetchRatesOnline();
@@ -482,4 +479,4 @@
   init();
 </script>
 </body>
-  </html>
+</html>
